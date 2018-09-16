@@ -1,0 +1,17 @@
+We must write 4 files:
+ServerUDP.cpp in C++
+ClientUDP.py  in Python
+&
+ServerTCP.py
+ClientTCP.cpp
+
+/////////////////////////////////
+ServerUDP.cpp
+/////////////////////////////////
+-runs on port 10023
+-accepts cmd line of form (server 10023)
+-
+/////////////////////////////////
+ClientUDP.py
+/////////////////////////////////
+-accepts cmd line of form (client serverName 10023)
