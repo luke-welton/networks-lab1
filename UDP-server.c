@@ -27,6 +27,11 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+int send_echo(void) //change this later
+{
+	return 0;
+}
+
 int main(void)
 {
 	int sockfd;
