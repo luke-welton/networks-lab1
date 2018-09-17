@@ -5,11 +5,6 @@ import sys
 
 
 def main(argv):
-    # client = ''
-    # server_name = ''
-    # port_number = ''
-    print("Oh no!")
-
     try:
         client = argv[1]
         server_name = argv[2]
