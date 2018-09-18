@@ -1,5 +1,6 @@
 import socket
 import sys
+import math
 
 
 def main(argv):
@@ -10,7 +11,7 @@ def main(argv):
         socket = ServerSocket(server, port)
         socket.run()
     except IndexError:
-        print("Improper arguments passed. Quitting.")
+        print("Improper arguments passed. Shutting Down.")
         exit()
 
 
@@ -53,19 +54,8 @@ class ServerSocket:
         6: not_function
     }
 
-    @staticmethod
-    def int_to_bytes(_int):
-        return {
-            tml: (_int & 0xFF00000000000000) >> (8 * 7),
-            id: (_int & 0x00FF000000000000) >> (8 * 6),
-            code: (_int & 0x0000FF0000000000) >> (8 * 5),
-            num_ops: (_int & 0x000000FF00000000) >> (8 * 4),
-            op1: (_int & 0x00000000FFFF0000) >> (8 * 2),
-            op2: (_int & 0x000000000000FFFF)
-        }
-
     def __init__(self, server, port):
-        self.message = 0
+        self.message = []
         self.message_obj = {}
         self.answer = 0
         self.invalid_req = False
@@ -86,19 +76,32 @@ class ServerSocket:
         client_connection = self.socket.accept()
 
         while 1:
-            msg_size = int(client_connection.recv(1))
+            msg_size = client_connection.recv(1)
             if not msg_size:
                 break
-            msg_size = msg_size - 1
+            message = [msg_size]
 
-            self.message = (msg_size << (8 * msg_size)) + int(client_connection.recv(msg_size))
+            for _ in range(msg_size - 1):
+                message.append(client_connection.recv(1))
 
+            self.message = bytes(message)
+
+            self.create_object()
             self.interpret()
             self.send_response()
 
             self.clean()
 
         client_connection.close()
+
+    def create_object(self):
+        self.message_obj.tml = int(self.message[0])
+        self.message_obj.id = int(self.message[1])
+        self.message_obj.code = int(self.message[2])
+        self.message_obj.num_ops = int(self.message[3])
+
+        self.message_obj.op1 = int(self.message[4] << 4 + self.message[5])
+        self.message_obj.op2 = int(self.message[6] << 4 + self.message[7])
 
     def interpret(self):
         self.message_obj = int_to_bytes(self.message)
@@ -116,15 +119,13 @@ class ServerSocket:
             result: self.answer
         }
 
-        response = response_obj.result
-        response += (response_obj.error << (8 * 4))
-        response += (response_obj.id << (8 * 5))
-        response += (response_obj.tml << (8 * 6))
+        response = {bytes(response_obj.tml), bytes(response_obj.id), bytes(response_obj.error)}
+        response.append(response_obj.result.to_bytes(4, "big"))
 
-        self.socket.send(response)
+        self.socket.send(bytes(response))
 
     def clean(self):
-        self.message = 0
+        self.message = []
         self.message_obj = {}
         self.answer = 0
         self.invalid_req = False
