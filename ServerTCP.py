@@ -81,7 +81,7 @@ class ServerSocket:
                 break
             message = [msg_size]
 
-            for _ in range(msg_size - 1):
+            for _ in range(int(msg_size) - 1):
                 message.append(client_connection.recv(1))
 
             self.message = bytes(message)
