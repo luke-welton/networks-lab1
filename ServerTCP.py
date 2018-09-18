@@ -75,7 +75,10 @@ class ServerSocket:
         try:
             self.socket.bind((server, port))
         except OSError:
-            print("Error occurred while connecting to the socket's server or port. Shutting Down.")
+            print("Error occurred while connecting to the socket's server. Shutting Down.")
+            exit()
+        except OverflowError:
+            print("The port number must be between 0 and 65535. Shutting Down.")
             exit()
 
     def run(self):
