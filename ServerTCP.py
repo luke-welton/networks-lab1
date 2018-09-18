@@ -82,9 +82,12 @@ class ServerSocket:
         client_connection = self.socket.accept()
 
         while 1:
-            self.message = client_connection.recv(8)
-            if not self.message:
+            msg_size = client_connection.recv(1)
+            if not msg_size:
                 break
+            msg_size = msg_size - 1
+
+            self.message = (msg_size << (8 * msg_size)) + client_connection.recv(msg_size)
 
             self.interpret()
 
