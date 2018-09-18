@@ -9,7 +9,7 @@ def main(argv):
 
         socket = ServerSocket(server, port)
         socket.run()
-    except exception:
+    except IndexError:
         print("Improper arguments passed. Quitting.")
         exit()
 
@@ -74,7 +74,7 @@ class ServerSocket:
 
         try:
             self.socket.bind((server, port))
-        except exception:
+        except OSError:
             print("Error occurred while connecting to the socket's server or port. Shutting Down.")
             exit()
 
@@ -101,7 +101,7 @@ class ServerSocket:
         self.message_obj = int_to_bytes(self.message)
         try:
             self.answer = function_switch(message_obj.op1, message_obj.op2)
-        except exception:
+        except KeyError:
             self.answer = 0
             self.invalid_req = True
 
