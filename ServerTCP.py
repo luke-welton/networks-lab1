@@ -1,6 +1,7 @@
 import socket
 import sys
 import math
+import struct
 
 
 def main(argv):
@@ -82,7 +83,6 @@ class ServerSocket:
 
         while 1:
             msg_size = self.byte_to_int(client_connection.recv(1))
-            print(msg_size)
             if not msg_size:
                 break
             self.message.append(msg_size)
@@ -92,8 +92,10 @@ class ServerSocket:
 
             self.create_object()
             self.interpret()
-            self.send_response()
-        self.clean()
+
+            client_connection.send(self.form_response())
+
+            self.clean()
 
         client_connection.close()
 
@@ -113,18 +115,18 @@ class ServerSocket:
             self.answer = 0
             self.invalid_req = True
 
-    def send_response(self):
+    def form_response(self):
         response_obj = {
             "tml": 7,
-            "id": self.message_obj.id,
+            "id": self.message_obj["id"],
             "error": 127 if self.invalid_req else 0,
             "result": self.answer
         }
 
-        response = {bytes(response_obj["tml"]), bytes(response_obj["id"]), bytes(response_obj["error"])}
-        response.append(response_obj["result"].to_bytes(4, "big"))
+        to_send = struct.pack("B", response_obj["tml"]) + struct.pack("B", response_obj["id"]) + struct.pack("B", response_obj["error"])
+        to_send += struct.pack("!i", response_obj["result"])
 
-        self.socket.send(bytes(response))
+        return to_send
 
     def clean(self):
         self.message = []
