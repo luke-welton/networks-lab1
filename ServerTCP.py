@@ -53,13 +53,6 @@ class ServerSocket:
             integer += ord(b)
         return int(integer)
 
-    @staticmethod
-    def byte_to_int(byte):
-        integer = 0
-        for b in byte:
-            integer += ord(b)
-        return int(integer)
-
     def __init__(self, port):
         self.message = []
         self.message_obj = {}
@@ -106,7 +99,10 @@ class ServerSocket:
         self.message_obj["num_ops"] = self.message[3]
 
         self.message_obj["op1"] = (self.message[4] << 4) + self.message[5]
-        self.message_obj["op2"] = (self.message[6] << 4) + self.message[7]
+        try:
+            self.message_obj["op2"] = (self.message[6] << 4) + self.message[7]
+        except KeyError:
+            self.message_obj["op2"] = 0
 
     def interpret(self):
         try:
@@ -123,7 +119,9 @@ class ServerSocket:
             "result": self.answer
         }
 
-        to_send = struct.pack("B", response_obj["tml"]) + struct.pack("B", response_obj["id"]) + struct.pack("B", response_obj["error"])
+        to_send = struct.pack("B", response_obj["tml"])
+        to_send += struct.pack("B", response_obj["id"])
+        to_send += struct.pack("B", response_obj["error"])
         to_send += struct.pack("!i", response_obj["result"])
 
         return to_send
