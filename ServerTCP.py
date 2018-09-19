@@ -5,10 +5,9 @@ import math
 
 def main(argv):
     try:
-        server = argv[1]
-        port = int(argv[2])
+        port = int(argv[1])
 
-        socket = ServerSocket(server, port)
+        socket = ServerSocket(port)
         socket.run()
     except IndexError:
         print("Improper arguments passed. Shutting Down.")
@@ -54,7 +53,7 @@ class ServerSocket:
         6: not_function
     }
 
-    def __init__(self, server, port):
+    def __init__(self, port):
         self.message = []
         self.message_obj = {}
         self.answer = 0
@@ -63,7 +62,7 @@ class ServerSocket:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
-            self.socket.bind((server, port))
+            self.socket.bind((socket.gethostbyname(socket.gethostname()), port))
         except OSError:
             print("Error occurred while connecting to the socket's server. Shutting Down.")
             exit()
