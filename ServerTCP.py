@@ -4,14 +4,16 @@ import math
 
 
 def main(argv):
+    port = 0
+
     try:
         port = int(argv[1])
-
-        socket = ServerSocket(port)
-        socket.run()
     except IndexError:
         print("Improper arguments passed. Shutting Down.")
         exit()
+
+    socket = ServerSocket(port)
+    socket.run()
 
 
 class ServerSocket:
@@ -43,15 +45,12 @@ class ServerSocket:
     def not_function(op):
         return ~op
 
-    function_switch = {
-        0: addition,
-        1: subtraction,
-        2: bitwise_or,
-        3: bitwise_and,
-        4: shift_right,
-        5: shift_left,
-        6: not_function
-    }
+    @staticmethod
+    def byte_to_int(byte):
+        integer = 0
+        for b in byte:
+            integer += ord(b)
+        return int(integer)
 
     def __init__(self, port):
         self.message = []
@@ -75,51 +74,50 @@ class ServerSocket:
         client_connection, address = self.socket.accept()
 
         while 1:
-            msg_size = client_connection.recv(1)
+            msg_size = self.byte_to_int(client_connection.recv(1))
+            print(msg_size)
             if not msg_size:
                 break
-            message = [msg_size]
+            self.message.append(msg_size)
 
-            for _ in range(int(msg_size) - 1):
-                message.append(client_connection.recv(1))
-
-            self.message = bytes(message)
+            for _ in range(msg_size - 1):
+                self.message.append(self.byte_to_int(client_connection.recv(1)))
 
             self.create_object()
             self.interpret()
             self.send_response()
-
-            self.clean()
+        self.clean()
 
         client_connection.close()
 
     def create_object(self):
-        self.message_obj.tml = int(self.message[0])
-        self.message_obj.id = int(self.message[1])
-        self.message_obj.code = int(self.message[2])
-        self.message_obj.num_ops = int(self.message[3])
+        print(self.message)
+        print(type(self.message))
+        self.message_obj["tml"] = self.message[0]
+        self.message_obj["id"] = self.message[1]
+        self.message_obj["code"] = self.message[2]
+        self.message_obj["num_ops"] = self.message[3]
 
-        self.message_obj.op1 = int(self.message[4] << 4 + self.message[5])
-        self.message_obj.op2 = int(self.message[6] << 4 + self.message[7])
+        self.message_obj["op1"] = (self.message[4] << 4) + self.message[5]
+        self.message_obj["op2"] = (self.message[6] << 4) + self.message[7]
 
     def interpret(self):
-        self.message_obj = int_to_bytes(self.message)
         try:
-            self.answer = function_switch(message_obj.op1, message_obj.op2)
+            self.answer = self.function_switch[self.message_obj["code"]](self.message_obj["op1"], self.message_obj["op2"])
         except KeyError:
             self.answer = 0
             self.invalid_req = True
 
     def send_response(self):
         response_obj = {
-            tml: 7,
-            id: self.message_obj.id,
-            error: 127 if self.invalid_req else 0,
-            result: self.answer
+            "tml": 7,
+            "id": self.message_obj.id,
+            "error": 127 if self.invalid_req else 0,
+            "result": self.answer
         }
 
-        response = {bytes(response_obj.tml), bytes(response_obj.id), bytes(response_obj.error)}
-        response.append(response_obj.result.to_bytes(4, "big"))
+        response = {bytes(response_obj["tml"]), bytes(response_obj["id"]), bytes(response_obj["error"])}
+        response.append(response_obj["result"].to_bytes(4, "big"))
 
         self.socket.send(bytes(response))
 
@@ -129,6 +127,16 @@ class ServerSocket:
         self.answer = 0
         self.invalid_req = False
 
+
+ServerSocket.function_switch = {
+    0: ServerSocket.addition,
+    1: ServerSocket.subtraction,
+    2: ServerSocket.bitwise_or,
+    3: ServerSocket.bitwise_and,
+    4: ServerSocket.shift_right,
+    5: ServerSocket.shift_left,
+    6: ServerSocket.not_function
+}
 
 if __name__ == "__main__":
     main(sys.argv)
