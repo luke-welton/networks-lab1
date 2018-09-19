@@ -2,6 +2,7 @@
 
 import socket
 import sys
+import time
 
 
 def main(argv):
@@ -34,13 +35,23 @@ def main(argv):
 
         request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, operand_one, operand_two])
 
-        s.send(request)
+        start = time.clock()
+        s.sendall(request)
+
         response = s.recv(4096)
-        for i in range(0, 8):
+        end = time.clock()
+
+        for i in range(0, 7):
             print(response[i].encode('hex'))
+
+        print('Response ID:', response[1])
+        print('Response:', str(response[3]) + str(response[4]) + str(response[5]) + str(response[6]))
+        print(end - start)
 
         request_id = request_id + 1
         continue = input('Continue (Y/n): ')
+
+    s.close()
 
 if __name__ == '__main__':
     main(sys.argv)
