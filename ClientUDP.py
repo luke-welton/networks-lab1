@@ -19,9 +19,9 @@ def main(argv):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect((server_name, port_number))
 
-    continue = 'Y'
+    keep_going = 'Y'
     request_id = 0
-    while continue != 'n':
+    while keep_going != 'n':
         op_code = input('Opcode: ')
         operand_one = input('Operand 1: ')
         operand_two = input('Operand 2: ')
@@ -49,7 +49,7 @@ def main(argv):
         print(end - start)
 
         request_id = request_id + 1
-        continue = input('Continue (Y/n): ')
+        keep_going = input('Continue (Y/n): ')
 
     s.close()
 
