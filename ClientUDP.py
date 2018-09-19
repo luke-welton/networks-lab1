@@ -32,8 +32,14 @@ def main(argv):
             total_message_length = 6
             op_number = 1
 
-
-        request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, operand_one, operand_two])
+        if int(operand_one) > 256 and int(operand_two) > 256:
+            request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, operand_one, operand_two])
+        elif int(operand_one) > 256:
+            request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, operand_one, 0, operand_two])
+        elif int(operand_two) > 256:
+            request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, 0, operand_one, operand_two])
+        else:
+            request = ''.join(chr(x) for x in [total_message_length, request_id, op_code, op_number, 0, operand_one, 0, operand_two])
 
         start = time.clock()
         s.sendall(request)
