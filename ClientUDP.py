@@ -7,9 +7,8 @@ import time
 
 def main(argv):
     try:
-        client = argv[1]
-        server_name = argv[2]
-        port_number = argv[3]
+        server_name = argv[1]
+        port_number = argv[2]
     except:
         print("Invalid arguments.")
         sys.exit()
