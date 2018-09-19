@@ -73,7 +73,7 @@ class ServerSocket:
 
     def run(self):
         self.socket.listen(1)
-        client_connection = self.socket.accept()
+        client_connection, address = self.socket.accept()
 
         while 1:
             msg_size = client_connection.recv(1)
