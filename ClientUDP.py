@@ -22,9 +22,22 @@ def main(argv):
     keep_going = 'Y'
     request_id = 0
     while keep_going != 'n':
-        op_code = input('Opcode: ')
-        operand_one = input('Operand 1: ')
-        operand_two = input('Operand 2: ')
+        try:
+            op_code = input('Opcode: ')
+        except:
+            print("Opcode required!")
+            break
+        try:
+            operand_one = input('Operand 1: ')
+        except:
+            print("Operand 1 required!")
+            break
+        if op_code != 6:
+            try:
+                operand_two = input('Operand 2: ')
+            except:
+                print("Operand 2 required!")
+                break
 
         total_message_length = 8 # Default for everything but NOT op
         op_number = 2
