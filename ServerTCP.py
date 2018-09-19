@@ -4,14 +4,16 @@ import math
 
 
 def main(argv):
-#    try:
-    port = int(argv[1])
+    port = 0
+
+    try:
+        port = int(argv[1])
+    except IndexError:
+        print("Improper arguments passed. Shutting Down.")
+        exit()
 
     socket = ServerSocket(port)
     socket.run()
-   #except:
- #       print("Improper arguments passed. Shutting Down.")
-  #      exit()
 
 
 class ServerSocket:
@@ -43,15 +45,12 @@ class ServerSocket:
     def not_function(op):
         return ~op
 
-    function_switch = {
-        0: addition,
-        1: subtraction,
-        2: bitwise_or,
-        3: bitwise_and,
-        4: shift_right,
-        5: shift_left,
-        6: not_function
-    }
+    @staticmethod
+    def byte_to_int(byte):
+        integer = 0
+        for b in byte:
+            integer += ord(b)
+        return int(integer)
 
     @staticmethod
     def byte_to_int(byte):
@@ -94,14 +93,11 @@ class ServerSocket:
             self.create_object()
             self.interpret()
             self.send_response()
-
-            self.clean()
+        self.clean()
 
         client_connection.close()
 
     def create_object(self):
-	print(self.message)
-	print(type(self.message))
         self.message_obj["tml"] = self.message[0]
         self.message_obj["id"] = self.message[1]
         self.message_obj["code"] = self.message[2]
@@ -136,6 +132,16 @@ class ServerSocket:
         self.answer = 0
         self.invalid_req = False
 
+
+ServerSocket.function_switch = {
+    0: ServerSocket.addition,
+    1: ServerSocket.subtraction,
+    2: ServerSocket.bitwise_or,
+    3: ServerSocket.bitwise_and,
+    4: ServerSocket.shift_right,
+    5: ServerSocket.shift_left,
+    6: ServerSocket.not_function
+}
 
 if __name__ == "__main__":
     main(sys.argv)
