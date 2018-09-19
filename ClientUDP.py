@@ -17,7 +17,7 @@ def main(argv):
     print(client, server_name, port_number)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((server_name, port_number))
+    s.connect((server_name, int(port_number)))
 
     keep_going = 'Y'
     request_id = 0
@@ -26,7 +26,7 @@ def main(argv):
         operand_one = input('Operand 1: ')
         operand_two = input('Operand 2: ')
 
-        total_message_length = 8 // Default for everything but NOT op
+        total_message_length = 8 # Default for everything but NOT op
         op_number = 2
         if op_code == 6:
             total_message_length = 6
