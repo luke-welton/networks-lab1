@@ -13,7 +13,7 @@ def main(argv):
         print("Invalid arguments.")
         sys.exit()
 
-    print(client, server_name, port_number)
+    print(server_name, port_number)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect((server_name, int(port_number)))
@@ -71,7 +71,10 @@ def main(argv):
         print(end - start)
 
         request_id = request_id + 1
-        keep_going = input('Continue (Y/n): ')
+        try:
+            keep_going = input('Continue (Y/n): ')
+        except:
+            keep_going = 'Y'
 
     s.close()
 
