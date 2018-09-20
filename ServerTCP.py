@@ -43,8 +43,8 @@ class ServerSocket:
         return op1 << op2
 
     @staticmethod
-    def not_function(op):
-        return ~op
+    def not_function(op1, op2):
+        return ~op1
 
     @staticmethod
     def byte_to_int(byte):
@@ -76,6 +76,7 @@ class ServerSocket:
 
         while 1:
             msg_size = self.byte_to_int(client_connection.recv(1))
+	    print(msg_size)
             if not msg_size:
                 break
             self.message.append(msg_size)
@@ -101,7 +102,7 @@ class ServerSocket:
         self.message_obj["op1"] = (self.message[4] << 4) + self.message[5]
         try:
             self.message_obj["op2"] = (self.message[6] << 4) + self.message[7]
-        except KeyError:
+        except IndexError:
             self.message_obj["op2"] = 0
 
     def interpret(self):
