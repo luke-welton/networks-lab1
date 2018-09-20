@@ -18,7 +18,7 @@ int main (int argc, char *argv[]) {
     sockFD.ai_family = AF_INET;
     sockFD.ai_socktype = SOCK_STREAM;
 
-    int returnValue = getaddrinfo(argv[1], atoi(argv[2]), &sockFD, &serverInfo);
+    int returnValue = getaddrinfo(argv[1], argv[2], &sockFD, &serverInfo);
     if (returnValue != 0) {
         fprintf(stderr, "Error with getaddrinfo: %s\n", gai_strerror(returnValue));
     }
@@ -53,7 +53,9 @@ int main (int argc, char *argv[]) {
         query(socketID);
 
         printf("/nWould you like to send another query (Y/N)?\t");
-        scanf("%s", &userInput);
+        char response[50];
+        scanf("%s", &response);
+        userInput = response[0];
     } while (strcmp(&userInput, "y") == 0 || strcmp(&userInput, "Y") == 0);
 }
 
