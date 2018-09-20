@@ -116,29 +116,29 @@ int query(int socketID) {
         exit(0);
     }
 
-    int *responseTML = 0;
-    n = read(socketID, responseTML, 1);
+    int responseTML = 0;
+    n = read(socketID, (void*) (&responseTML), 1);
     clock_t end = clock();
     if (n < 0) {
         printf("An error occurred while reading the server's initial response. Shutting down.\n");
         exit(0);
     }
 
-    int response[*responseTML];
-    response[0] = *responseTML;
+    int response[responseTML];
+    response[0] = responseTML;
 
-    for (unsigned i = 1; i < *responseTML; i++) {
-        int *byteIn = 0;
-        n = read(socketID, byteIn, 1);
+    for (unsigned i = 1; i < responseTML; i++) {
+        int byteIn = 0;
+        n = read(socketID, (void*)(&byteIn), 1);
         if (n < 0) {
             printf("An error occurred while reading the server's following response (#%d). Shutting down.\n", i);
         } else {
-            response[i] = *byteIn;
+            response[i] = byteIn;
         }
     }
 
     printf("Response in hexadecimal:\n");
-    for (unsigned i = 0; i < *responseTML; i++) {
+    for (unsigned i = 0; i < responseTML; i++) {
         printf("0x%02X ", response[i]);
     }
     printf("\n\n");
