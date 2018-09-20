@@ -3,6 +3,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <netdb.h>
+
+int query(int sockfd);
 
 int main (int argc, char *argv[]) {
     if (argc < 2) {
@@ -10,27 +13,51 @@ int main (int argc, char *argv[]) {
         exit(0);
     }
 
+    struct addrinfo sockFD, *serverInfo;
+    memset(&sockFD, 0, sizeof sockFD);
+    sockFD.ai_family = AF_INET;
+    sockFD.ai_socktype = SOCK_STREAM;
 
-    int sockFD = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockFD < 0) {
-        printf("An error occurred while creating the client socket. Shutting down.\n");
+    int returnValue = getaddrinfo(argv[1], atoi(argv[2]), &sockFD, &serverInfo);
+    if (returnValue != 0) {
+        fprintf(stderr, "Error with getaddrinfo: %s\n", gai_strerror(returnValue));
+    }
+
+    struct addrinfo *p;
+    int socketID = 0;
+
+    for (p = serverInfo; p != NULL; p = p->ai_next) {
+        socketID = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (socketID == -1) {
+            perror("client: socket");
+            continue;
+        }
+
+        if (connect(socketID, p->ai_addr, p->ai_addrlen) == -1) {
+            perror("client: connect");
+            continue;
+        }
+
+        break;
+    }
+
+    if (p == NULL) {
+        printf("An error occurred while connecting to the server. Shutting Down.");
         exit(0);
     }
 
-    struct sockaddr_in serverAddress;
-    memset(&serverAddress, '0', sizeof(serverAddress));
+    freeaddrinfo(serverInfo);
 
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(atoi(argv[2]));
+    char userInput;
+    do {
+        query(socketID);
 
-    if (inet_pton(AF_INET, gethostbyname(argv[1]), &serverAddress.sin_addr) <= 0) {
-        printf("The given server address is not supported. Shutting down.\n");
-        exit(0);
-    }
+        printf("/nWould you like to send another query (Y/N)?\t");
+        scanf("%s", &userInput);
+    } while (strcmp(&userInput, "y") == 0 || strcmp(&userInput, "Y") == 0);
+}
 
-    if (connect(sockFD, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
-        printf("An error occurred while connecting to the server. Shutting down.\n");
-        exit(0);
-    }
+int query(int socketID) {
+
 }
 
