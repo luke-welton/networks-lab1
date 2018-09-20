@@ -92,24 +92,23 @@ int query(int socketID) {
     toSend[1] = id;
     toSend[2] = opCode;
     toSend[3] = numOps;
-    toSend[4] = op1 & 0xff;
-    toSend[5] = (op1 >> 8) & 0xff;
+
+    toSend[4] = (op1 >> 8) & 0xff;
+    toSend[5] = op1 & 0xff;
 
     if (tml == 8) {
-        toSend[6] = op2 & 0xff;
-        toSend[7] = (op2 >> 8) & 0xff;
+        toSend[6] = (op2 >> 8) & 0xff;
+        toSend[7] = op2 & 0xff;
     }
 
-    char message[4 * tml];
     printf("Message in hexadecimal:\n");
     for (unsigned i = 0; i < tml; i++) {
-        printf("%02X ", toSend[i]);
-        snprintf(&message[i * 4], 4, "%02X", toSend[i]);
+        printf("0x%02X ", toSend[i]);
     }
     printf("\n");
 
     clock_t start = clock();
-    //write(socketID, query, sizeof(query));
+    write(socketID, toSend, sizeof(toSend));
     //receive
 
     clock_t end = clock();
