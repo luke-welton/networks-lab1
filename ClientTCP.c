@@ -59,29 +59,57 @@ int main (int argc, char *argv[]) {
 }
 
 int query(int socketID) {
-    int opNum, op1, op2;
+    unsigned char opNum;
+    short op1, op2;
 
-    printf("_____________________________\n");
+    printf("-----------------------------\n");
     printf("| 0 | 1 | 2 | 3 | 4 | 5 | 6 |\n");
-    printf("_____________________________\n");
+    printf("-----------------------------\n");
     printf("|Add|Sub| Or|And|Shr|Shl|Not|\n");
-    printf("_____________________________\n\n");
+    printf("-----------------------------\n\n");
 
     printf("Enter the Operand Number:\t");
-    scanf("%i", &opNum);
+    scanf("%c", &opNum);
 
     printf("Enter the first operand:\t");
-    scanf("%i", &op1);
+    scanf("%hd", &op1);
 
     if (opNum != 6) {
         printf("Enter the second operand:\t");
-        scanf("%i", &op2);
+        scanf("%hd", &op2);
     }
 
     unsigned char tml = (unsigned char) (opNum == 6 ? 6 : 8);
     unsigned char id = (unsigned char) (rand() % 128);
     unsigned char numOps = (unsigned char) (opNum == 6 ? 1 : 2);
 
+    clock_t start = clock();
 
+    //send
+    char toSend[tml];
+    toSend[0] = tml;
+    toSend[1] = id;
+    toSend[2] = numOps;
+    toSend[3] = opNum;
+    toSend[4] = op1 & 0xff;
+    toSend[5] = (op1 >> 8) & 0xff;
+
+    if (tml == 8) {
+        toSend[6] = op2 & 0xff;
+        toSend[7] = (op2 >> 8) & 0xff;
+    }
+
+    printf("Message in hexadecimal:\n");
+    for (unsigned i = 0; i < tml; i++) {
+        printf("%02X\t", toSend[i]);
+    }
+    printf("\n");
+
+    //receive
+
+    clock_t end = clock();
+
+    double time = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time Taken: %f", time);
 }
 
