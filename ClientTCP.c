@@ -5,8 +5,9 @@
 #include <string.h>
 #include <netdb.h>
 #include <time.h>
+#include <unistd.h>
 
-int query(int sockfd);
+int query(int socketID);
 
 int main (int argc, char *argv[]) {
     srand(time(0));
@@ -85,8 +86,6 @@ int query(int socketID) {
     unsigned char id = (unsigned char) (rand() % 128);
     unsigned char numOps = (unsigned char) (opCode == 6 ? 1 : 2);
 
-    clock_t start = clock();
-
     //send
     char toSend[tml];
     toSend[0] = tml;
@@ -101,12 +100,16 @@ int query(int socketID) {
         toSend[7] = (op2 >> 8) & 0xff;
     }
 
+    char message[4 * tml];
     printf("Message in hexadecimal:\n");
     for (unsigned i = 0; i < tml; i++) {
         printf("%02X ", toSend[i]);
+        snprintf(&message[i * 4], 4, "%02X", toSend[i]);
     }
     printf("\n");
 
+    clock_t start = clock();
+    //write(socketID, query, sizeof(query));
     //receive
 
     clock_t end = clock();
