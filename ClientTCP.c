@@ -48,15 +48,13 @@ int main (int argc, char *argv[]) {
 
     freeaddrinfo(serverInfo);
 
-    char userInput;
+    char userInput [50];
     do {
         query(socketID);
 
         printf("/nWould you like to send another query (Y/N)?\t");
-        char response[50];
-        scanf("%s", &response);
-        userInput = response[0];
-    } while (strcmp(&userInput, "y") == 0 || strcmp(&userInput, "Y") == 0);
+        scanf("%s", userInput);
+    } while (userInput[0] == "Y" || userInput[0] == "y");
 }
 
 int query(int socketID) {
