@@ -76,7 +76,6 @@ class ServerSocket:
 
         while 1:
             msg_size = self.byte_to_int(client_connection.recv(1))
-	    print(msg_size)
             if not msg_size:
                 break
             self.message.append(msg_size)
