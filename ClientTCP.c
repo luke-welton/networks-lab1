@@ -46,7 +46,7 @@ int main (int argc, char *argv[]) {
     }
 
     if (p == NULL) {
-        printf("An error occurred while connecting to the server. Shutting Down.");
+        printf("An error occurred while connecting to the server. Shutting Down.\n");
         exit(0);
     }
 
@@ -65,11 +65,13 @@ int query(int socketID) {
     unsigned char opCode;
     short op1, op2;
 
+    printf("\n\n");
     printf("-----------------------------\n");
     printf("| 0 | 1 | 2 | 3 | 4 | 5 | 6 |\n");
     printf("-----------------------------\n");
     printf("|Add|Sub| Or|And|Shr|Shl|Not|\n");
-    printf("-----------------------------\n\n");
+    printf("-----------------------------\n");
+    printf("\n\n");
 
     printf("Enter the Operand Number:\t");
     scanf("%hhd", &opCode);
@@ -110,7 +112,7 @@ int query(int socketID) {
     clock_t start = clock();
     ssize_t n = write(socketID, toSend, sizeof(toSend));
     if (n < 0) {
-        printf("An error occurred while writing to the server. Shutting down.");
+        printf("An error occurred while writing to the server. Shutting down.\n");
         exit(0);
     }
 
@@ -118,7 +120,7 @@ int query(int socketID) {
     n = read(socketID, responseTML, 1);
     clock_t end = clock();
     if (n < 0) {
-        printf("An error occurred while reading the server's response. Shutting down.");
+        printf("An error occurred while reading the server's initial response. Shutting down.\n");
         exit(0);
     }
 
@@ -129,7 +131,7 @@ int query(int socketID) {
         int *byteIn = 0;
         n = read(socketID, byteIn, 1);
         if (n < 0) {
-            printf("An error occurred while reading the server's response. Shutting down.");
+            printf("An error occurred while reading the server's following response (#%d). Shutting down.\n", i);
         } else {
             response[i] = *byteIn;
         }
