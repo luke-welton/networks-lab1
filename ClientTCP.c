@@ -93,25 +93,54 @@ int query(int socketID) {
     toSend[2] = opCode;
     toSend[3] = numOps;
 
-    toSend[4] = (op1 >> 8) & 0xff;
-    toSend[5] = op1 & 0xff;
+    toSend[4] = (char) ((op1 >> 8) & 0xff);
+    toSend[5] = (char) (op1 & 0xff);
 
     if (tml == 8) {
-        toSend[6] = (op2 >> 8) & 0xff;
-        toSend[7] = op2 & 0xff;
+        toSend[6] = (char) ((op2 >> 8) & 0xff);
+        toSend[7] = (char) (op2 & 0xff);
     }
 
     printf("Message in hexadecimal:\n");
     for (unsigned i = 0; i < tml; i++) {
         printf("0x%02X ", toSend[i]);
     }
-    printf("\n");
+    printf("\n\n");
 
     clock_t start = clock();
-    write(socketID, toSend, sizeof(toSend));
-    //receive
+    ssize_t n = write(socketID, toSend, sizeof(toSend));
+    if (n < 0) {
+        printf("An error occurred while writing to the server. Shutting down.");
+        exit(0);
+    }
 
+    int *responseTML = 0;
+    n = read(socketID, responseTML, 1);
     clock_t end = clock();
+    if (n < 0) {
+        printf("An error occurred while reading the server's response. Shutting down.");
+        exit(0);
+    }
+
+    int response[*responseTML];
+    response[0] = *responseTML;
+
+    for (unsigned i = 1; i < *responseTML; i++) {
+        int *byteIn = 0;
+        n = read(socketID, byteIn, 1);
+        if (n < 0) {
+            printf("An error occurred while reading the server's response. Shutting down.");
+        } else {
+            response[i] = *byteIn;
+        }
+    }
+
+    printf("Response in hexadecimal:\n");
+    for (unsigned i = 0; i < *responseTML; i++) {
+        printf("0x%02X ", response[i]);
+    }
+    printf("\n\n");
+
 
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Time Taken: %f", time);
