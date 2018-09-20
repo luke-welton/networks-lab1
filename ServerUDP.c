@@ -18,16 +18,16 @@
 #define MAXBUFLEN 100
 
 typedef struct ReceivedMessageBody {
-    int tml;
-    int id;
-    int opCode;
-    int numOps;
+    unsigned tml;
+    unsigned id;
+    unsigned opCode;
+    unsigned numOps;
     int op1;
     int op2;
 }ReceivedMessageBody;
 
 void displayBuffer(char *Buffer, int length);
-MessageBody bytesToInts(char *Buffer, int length);
+ReceivedMessageBody bytesToInts(char *Buffer, int length);
 int addition(int op1, int op2);
 int subtraction(int op1, int op2);
 int bitwiseOr(int op1, int op2);
@@ -115,12 +115,13 @@ int main (int argc, char *argv[])
         buf[numbytes] = '\0';
         printf("listener: packet contains \"%s\"\n", buf);
         displayBuffer(buf,numbytes);
+        bytesToInts(buf, numbytes);
         //add code for calcs here
-        switch() {
-            case //add:
-            addition();
-            break;
-        }
+//        switch() {
+//            case //add:
+//            addition();
+//            break;
+//        }
     }
 }
 
@@ -144,14 +145,24 @@ void displayBuffer(char *Buffer, int length){
     printf("\n\n");
 }
 
+// convert byte array buffer into integers and store the message in a struct.
 ReceivedMessageBody bytesToInts(char *Buffer, int length) {
-    int temp_tml = ;
-    int temp_id;
-    int temp_opCode;
-    int temp_numOps;
-    int temp_op1;
-    int temp_op2;
-    if ()
+    ReceivedMessageBody temp_body;
+    temp_body.tml = 0;
+    temp_body.tml = Buffer[0] << 8;
+    temp_body.id = 0;
+    temp_body.id = Buffer[1] << 8;
+    temp_body.opCode = 0;
+    temp_body.opCode = Buffer[2] << 8;
+    temp_body.numOps = 0;
+    temp_body.numOps = Buffer[3] << 8;
+    temp_body.op1 = 0;
+    temp_body.op1 = ((Buffer[4] << 16) | (Buffer[5] << 8));
+    temp_body.op2 = 0;
+    if(temp_body.numOps == 2) {
+        temp_body.op2 = ((Buffer[6] << 16) | (Buffer[7] << 8));
+    }
+    return temp_body;
 }
 
 int addition(int op1, int op2) {
