@@ -9,6 +9,8 @@
 int query(int sockfd);
 
 int main (int argc, char *argv[]) {
+    srand(time(0));
+
     if (argc < 2) {
         printf("Incorrect number of arguments passed. Shutting down.\n");
         exit(0);
@@ -59,7 +61,7 @@ int main (int argc, char *argv[]) {
 }
 
 int query(int socketID) {
-    unsigned char opNum;
+    unsigned char opCode;
     short op1, op2;
 
     printf("-----------------------------\n");
@@ -69,19 +71,19 @@ int query(int socketID) {
     printf("-----------------------------\n\n");
 
     printf("Enter the Operand Number:\t");
-    scanf("%c", &opNum);
+    scanf("%hhd", &opCode);
 
     printf("Enter the first operand:\t");
     scanf("%hd", &op1);
 
-    if (opNum != 6) {
+    if (opCode != 6) {
         printf("Enter the second operand:\t");
         scanf("%hd", &op2);
     }
 
-    unsigned char tml = (unsigned char) (opNum == 6 ? 6 : 8);
+    unsigned char tml = (unsigned char) (opCode == 6 ? 6 : 8);
     unsigned char id = (unsigned char) (rand() % 128);
-    unsigned char numOps = (unsigned char) (opNum == 6 ? 1 : 2);
+    unsigned char numOps = (unsigned char) (opCode == 6 ? 1 : 2);
 
     clock_t start = clock();
 
@@ -89,8 +91,8 @@ int query(int socketID) {
     char toSend[tml];
     toSend[0] = tml;
     toSend[1] = id;
-    toSend[2] = numOps;
-    toSend[3] = opNum;
+    toSend[2] = opCode;
+    toSend[3] = numOps;
     toSend[4] = op1 & 0xff;
     toSend[5] = (op1 >> 8) & 0xff;
 
@@ -101,7 +103,7 @@ int query(int socketID) {
 
     printf("Message in hexadecimal:\n");
     for (unsigned i = 0; i < tml; i++) {
-        printf("%02X\t", toSend[i]);
+        printf("%02X ", toSend[i]);
     }
     printf("\n");
 
