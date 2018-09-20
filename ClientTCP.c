@@ -52,9 +52,9 @@ int main (int argc, char *argv[]) {
     do {
         query(socketID);
 
-        printf("/nWould you like to send another query (Y/N)?\t");
-        scanf("%s", userInput);
-    } while (userInput[0] == "Y" || userInput[0] == "y");
+        printf("\nWould you like to send another query (Y/N)?\t");
+        scanf("%c", userInput);
+    } while (userInput[0] == 'Y' || userInput[0] == 'y');
 }
 
 int query(int socketID) {
