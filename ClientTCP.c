@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <netdb.h>
+#include <time.h>
 
 int query(int sockfd);
 
@@ -58,6 +59,29 @@ int main (int argc, char *argv[]) {
 }
 
 int query(int socketID) {
+    int opNum, op1, op2;
+
+    printf("_____________________________\n");
+    printf("| 0 | 1 | 2 | 3 | 4 | 5 | 6 |\n");
+    printf("_____________________________\n");
+    printf("|Add|Sub| Or|And|Shr|Shl|Not|\n");
+    printf("_____________________________\n\n");
+
+    printf("Enter the Operand Number:\t");
+    scanf("%i", &opNum);
+
+    printf("Enter the first operand:\t");
+    scanf("%i", &op1);
+
+    if (opNum != 6) {
+        printf("Enter the second operand:\t");
+        scanf("%i", &op2);
+    }
+
+    unsigned char tml = (unsigned char) (opNum == 6 ? 6 : 8);
+    unsigned char id = (unsigned char) (rand() % 128);
+    unsigned char numOps = (unsigned char) (opNum == 6 ? 1 : 2);
+
 
 }
 
