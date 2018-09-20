@@ -22,9 +22,9 @@ int main (int argc, char *argv[]) {
     sockFD.ai_family = AF_INET;
     sockFD.ai_socktype = SOCK_STREAM;
 
-    int returnValue = getaddrinfo(argv[1], argv[2], &sockFD, &serverInfo);
-    if (returnValue != 0) {
-        fprintf(stderr, "Error with getaddrinfo: %s\n", gai_strerror(returnValue));
+    int n = getaddrinfo(argv[1], argv[2], &sockFD, &serverInfo);
+    if (n < 0) {
+        fprintf(stderr, "Error with getaddrinfo: %s\n", gai_strerror(n));
     }
 
     struct addrinfo *p;
@@ -36,7 +36,6 @@ int main (int argc, char *argv[]) {
             perror("client: socket");
             continue;
         }
-
         if (connect(socketID, p->ai_addr, p->ai_addrlen) == -1) {
             perror("client: connect");
             continue;
@@ -59,6 +58,14 @@ int main (int argc, char *argv[]) {
         printf("\nWould you like to send another query (Y/N)?\t");
         scanf("%c", userInput);
     } while (userInput[0] == 'Y' || userInput[0] == 'y');
+
+    n = close(socketID);
+    if (n < 0) {
+        printf("An error occurred while closing the connection with the server. Shutting down.");
+        exit(0);
+    }
+
+    exit(1);
 }
 
 int query(int socketID) {
@@ -83,6 +90,8 @@ int query(int socketID) {
         printf("Enter the second operand:\t");
         scanf("%hd", &op2);
     }
+
+    printf("\n\n");
 
     unsigned char tml = (unsigned char) (opCode == 6 ? 6 : 8);
     unsigned char id = (unsigned char) (rand() % 128);
@@ -132,9 +141,10 @@ int query(int socketID) {
         n = read(socketID, (void*)(&byteIn), 1);
         if (n < 0) {
             printf("An error occurred while reading the server's following response (#%d). Shutting down.\n", i);
-        } else {
-            response[i] = byteIn;
+            exit(0);
         }
+
+        response[i] = byteIn;
     }
 
     printf("Response in hexadecimal:\n");
@@ -143,8 +153,16 @@ int query(int socketID) {
     }
     printf("\n\n");
 
+    int answer = (response[3] << (8 * 3)) +
+                 (response[4] << (8 * 2)) +
+                 (response[5] << (8 * 1)) +
+                 (response[6] << (8 * 0));
+    int responseID = response[1];
+
+    printf("Request #%d\n", responseID);
+    printf("Answer: %d\n", answer);
 
     double time = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Time Taken: %f", time);
+    printf("Time Taken: %f\n", time);
 }
 
