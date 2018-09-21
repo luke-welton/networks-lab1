@@ -10,6 +10,8 @@ Known bugs:
 
 The TCP Client and Server do not want to perform multiple requests. We currently do not know if this is an issue with the client, the server, or both. (I suspect the client is defaulting to quit rather than to send another and something is wrong on the input for continuing.)
 
+The UDP Server appears to get stuck in an infinite loop. Reasons unknown.
+
 # Compiling
 The TCP client and UDP server are compiled using `gcc ClientTCP.c -o ClientTCP` and `gcc ServerUDP.c -o ServerUDP` and our TCP server and UDP client are in python, a scripting language, and are not compiled.
 
@@ -24,6 +26,6 @@ python ClientUDP.py <server_addr> <port>
 ```
 
 # Results
-In testing with a mock server, our UDP client appeared to be fully functional. The UDP server appears to be 
+In testing with a mock server, our UDP client appeared to be fully functional. The UDP server appears to be stuck in an infinite loop.
 
 The TCP client and server appear to communication correctly for the first message but upon being prompted to continue both will close the connection.
