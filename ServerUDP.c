@@ -28,8 +28,10 @@ typedef struct ReceivedMessageBody {
     int op2;
 }ReceivedMessageBody;
 
+
 void displayBuffer(char *Buffer, int length);
 ReceivedMessageBody bytesToInts(char *Buffer);
+char * intsToBytes(int tml, int requestID, int errorCode, int result);
 int addition(int op1, int op2);
 int subtraction(int op1, int op2);
 int bitwiseOr(int op1, int op2);
@@ -126,39 +128,40 @@ int main (int argc, char *argv[])
 
         switch(rcvdMsgObj.opCode) {
             case 0:
-                responseBody = addition(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = addition(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 1:
-                responseBody = subtraction(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = subtraction(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 2:
-                responseBody = bitwiseOr(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = bitwiseOr(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 3:
-                responseBody = bitwiseAnd(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = bitwiseAnd(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 4:
-                responseBody = shiftRight(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = shiftRight(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 5:
-                responseBody = shiftLeft(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseResult = shiftLeft(rcvdMsgObj.op1, rcvdMsgObj.op2);
                 responseErrCode = VALIDREQUEST;
                 break;
             case 6:
-                responseBody = notFunction(rcvdMsgObj.op1);
+                responseResult = notFunction(rcvdMsgObj.op1);
                 responseErrCode = VALIDREQUEST;
                 break;
             default:
                 responseErrCode = INVALIDREQUEST;
         }
 
-        if ((numbytes = sendto(sockfd, POINTERTOMYMESSAGEEEEEEEEBYTEARRAY, lengthofmessagebuffer, 0,
-                               *their_addr, *addr_len)) == -1) {
+        char *sendBuffer = intsToBytes(responseTML, responseRequestID, responseErrCode, responseResult);
+        if ((numbytes = sendto(sockfd, sendBuffer, 7, 0,
+                               p->ai_addr, p->ai_addrlen)) == -1) {
             perror("ServerUDP: sendto");
             exit(1);
         }
@@ -206,8 +209,8 @@ ReceivedMessageBody bytesToInts(char *Buffer) {
     return temp_body;
 }
 
-char *Buffer intsToBytes(int tml, int requestID, int errorCode, int result) {
-    char sendingBuf[7];
+char * intsToBytes(int tml, int requestID, int errorCode, int result) {
+    static char sendingBuf[7];
     sendingBuf[0] = tml;
     sendingBuf[1] = requestID;
     sendingBuf[2] = errorCode;
@@ -215,6 +218,7 @@ char *Buffer intsToBytes(int tml, int requestID, int errorCode, int result) {
     sendingBuf[4] = result >> 8;
     sendingBuf[5] = result >> 16;
     sendingBuf[6] = result >> 24;
+    return sendingBuf;
 }
 
 int addition(int op1, int op2) {
