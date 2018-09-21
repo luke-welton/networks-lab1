@@ -206,6 +206,16 @@ ReceivedMessageBody bytesToInts(char *Buffer) {
     return temp_body;
 }
 
+char *Buffer intsToBytes(int tml, int requestID, int errorCode, int result) {
+    char sendingBuf[7];
+    tml >> sendingBuf[0];
+    requestID >> sendingBuf[1]
+    int answer = (response[3] << (8 * 3)) +
+                 (response[4] << (8 * 2)) +
+                 (response[5] << (8 * 1)) +
+                 (response[6] << (8 * 0));
+}
+
 int addition(int op1, int op2) {
     return op1 + op2;
 }
