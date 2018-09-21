@@ -16,6 +16,8 @@
 #include <netdb.h>
 
 #define MAXBUFLEN 100
+#define INVALIDREQUEST 127
+#define VALIDREQUEST 0
 
 typedef struct ReceivedMessageBody {
     unsigned tml;
@@ -27,13 +29,13 @@ typedef struct ReceivedMessageBody {
 }ReceivedMessageBody;
 
 void displayBuffer(char *Buffer, int length);
-ReceivedMessageBody bytesToInts(char *Buffer, int length);
+ReceivedMessageBody bytesToInts(char *Buffer);
 int addition(int op1, int op2);
 int subtraction(int op1, int op2);
 int bitwiseOr(int op1, int op2);
 int bitwiseAnd(int op1, int op2);
-int shiftLeft(int op1, int op2);
 int shiftRight(int op1, int op2);
+int shiftLeft(int op1, int op2);
 int notFunction(int op1);
 
 // get sockaddr, IPv4 or IPv6:
@@ -76,13 +78,13 @@ int main (int argc, char *argv[])
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1) {
-            perror("listener: socket");
+            perror("ServerUDP: socket");
             continue;
         }
 
         if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             close(sockfd);
-            perror("listener: bind");
+            perror("ServerUDP: bind");
             continue;
         }
 
@@ -90,7 +92,7 @@ int main (int argc, char *argv[])
     }
 
     if (p == NULL) {
-        fprintf(stderr, "listener: failed to bind socket\n");
+        fprintf(stderr, "ServerUDP: failed to bind socket\n");
         return 2;
     }
 
@@ -98,7 +100,7 @@ int main (int argc, char *argv[])
 
 
     while (1){
-        printf("\n >>>> listener: waiting for a datagram...\n");
+        printf("\n >>>> ServerUDP: waiting for a datagram...\n");
 
         addr_len = sizeof their_addr;
         if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
@@ -107,21 +109,60 @@ int main (int argc, char *argv[])
             exit(1);
         }
 
-        printf("listener: got packet from %s\n",
+        printf("ServerUDP: got packet from %s\n",
                inet_ntop(their_addr.ss_family,
                          get_in_addr((struct sockaddr *)&their_addr),
                          s, sizeof s));
-        printf("listener: packet is %d bytes long\n", numbytes);
+        printf("ServerUDP: packet is %d bytes long\n", numbytes);
         buf[numbytes] = '\0';
-        printf("listener: packet contains \"%s\"\n", buf);
+        printf("ServerUDP: packet contains \"%s\"\n", buf);
         displayBuffer(buf,numbytes);
-        bytesToInts(buf, numbytes);
-        //add code for calcs here
-//        switch() {
-//            case //add:
-//            addition();
-//            break;
-//        }
+
+        ReceivedMessageBody rcvdMsgObj = bytesToInts(buf);
+        int responseTML = 7;
+        int responseRequestID = rcvdMsgObj.id;
+        int responseErrCode = INVALIDREQUEST;
+        int responseResult = 0;
+
+        switch(rcvdMsgObj.opCode) {
+            case 0:
+                responseBody = addition(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 1:
+                responseBody = subtraction(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 2:
+                responseBody = bitwiseOr(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 3:
+                responseBody = bitwiseAnd(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 4:
+                responseBody = shiftRight(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 5:
+                responseBody = shiftLeft(rcvdMsgObj.op1, rcvdMsgObj.op2);
+                responseErrCode = VALIDREQUEST;
+                break;
+            case 6:
+                responseBody = notFunction(rcvdMsgObj.op1);
+                responseErrCode = VALIDREQUEST;
+                break;
+            default:
+                responseErrCode = INVALIDREQUEST;
+        }
+
+        if ((numbytes = sendto(sockfd, POINTERTOMYMESSAGEEEEEEEEBYTEARRAY, lengthofmessagebuffer, 0,
+                               *their_addr, *addr_len)) == -1) {
+            perror("ServerUDP: sendto");
+            exit(1);
+        }
+
     }
 }
 
@@ -146,7 +187,7 @@ void displayBuffer(char *Buffer, int length){
 }
 
 // convert byte array buffer into integers and store the message in a struct.
-ReceivedMessageBody bytesToInts(char *Buffer, int length) {
+ReceivedMessageBody bytesToInts(char *Buffer) {
     ReceivedMessageBody temp_body;
     temp_body.tml = 0;
     temp_body.tml = Buffer[0] << 8;
@@ -177,11 +218,11 @@ int bitwiseOr(int op1, int op2) {
 int bitwiseAnd(int op1, int op2) {
     return op1 & op2;
 }
-int shiftLeft(int op1, int op2) {
-    return op1 << op2;
-}
 int shiftRight(int op1, int op2) {
     return op1 >> op2;
+}
+int shiftLeft(int op1, int op2) {
+    return op1 << op2;
 }
 int notFunction(int op1){
     return ~op1;
