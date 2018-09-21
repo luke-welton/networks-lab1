@@ -165,6 +165,7 @@ int main (int argc, char *argv[])
             perror("ServerUDP: sendto");
             exit(1);
         }
+        memset(&buf[0], 0, sizeof(buf));
     }
 }
 
